@@ -1,0 +1,15 @@
+#root {
+  min-height: 100vh;
+}
+
+img[src$="brb-logo.png"] {
+  max-width: 13.5rem;
+  height: auto;
+}
+
+.page-load-error,
+.not-found {
+  margin: 2rem auto;
+  max-width: 48rem;
+  padding: 1rem;
+}

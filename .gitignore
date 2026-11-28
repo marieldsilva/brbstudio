@@ -1,0 +1,4 @@
+.env
+frontend/dist/
+backend/uploads/services/*
+!backend/uploads/services/.gitkeep
