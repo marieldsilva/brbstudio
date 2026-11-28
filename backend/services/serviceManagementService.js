@@ -7,7 +7,11 @@ const MYSQL_ROW_IS_REFERENCED = 'ER_ROW_IS_REFERENCED_2';
 
 const MAX_NAME_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 500;
-const PRICE_PATTERN = /^\d{1,8}(\.\d{1,2})?$/;
+const PRICE_PATTERN = /^\d{4}$/;
+const MIN_SERVICE_PRICE = 1000;
+const MAX_SERVICE_PRICE = 9999;
+const DURATION_PATTERN = /^\d+$/;
+const WORKSHOP_PATTERN = /modeling workshop/i;
 
 const nameTakenError = () =>
   new AppError('A service with this name already exists.', 409, {
@@ -44,10 +48,16 @@ function normalizeFields(body = {}) {
   return {
     name: asText(body.name).trim(),
     description: asText(body.description).trim(),
-    price: asText(body.price).replace(/[₱,\s]/g, ''),
+    price: asText(body.price).trim(),
+    durationHours: asText(body.durationHours),
     available: body.available,
     removeImage: parseBoolean(body.removeImage, false),
   };
+}
+
+function isValidPrice(price) {
+  const amount = Number(price);
+  return PRICE_PATTERN.test(price) && amount >= MIN_SERVICE_PRICE && amount <= MAX_SERVICE_PRICE;
 }
 
 function validateFields(fields, file) {
@@ -64,8 +74,16 @@ function validateFields(fields, file) {
   }
 
   if (!fields.price) errors.price = 'Price is required.';
-  else if (!PRICE_PATTERN.test(fields.price) || Number(fields.price) <= 0) {
-    errors.price = 'Enter a valid price greater than 0, e.g. 1500 or 1500.50.';
+  else if (!isValidPrice(fields.price)) {
+    errors.price = 'Enter a whole-peso price from ₱1,000 to ₱9,999.';
+  }
+
+  if (WORKSHOP_PATTERN.test(fields.name)) {
+    fields.durationHours = null;
+  } else if (!DURATION_PATTERN.test(fields.durationHours) || Number(fields.durationHours) < 1) {
+    errors.durationHours = 'Duration must be a whole number of at least 1 hour.';
+  } else {
+    fields.durationHours = Number(fields.durationHours);
   }
 
   if (file && !imageStorage.isSupportedImage(file.buffer)) {
@@ -83,6 +101,7 @@ function toPublicService(row) {
     name: row.name,
     description: row.description,
     price: Number(row.price),
+    durationHours: row.durationHours === null ? null : Number(row.durationHours),
     imageUrl: row.imagePath,
     available: Boolean(row.available),
   };
@@ -180,6 +199,7 @@ async function deleteService(rawId) {
 module.exports = {
   listServices,
   listAvailableServices,
+  isValidPrice,
   createService,
   updateService,
   setServiceAvailability,

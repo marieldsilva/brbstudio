@@ -25,20 +25,6 @@ async function findByEmail(email) {
   return row || null;
 }
 
-async function findById(id) {
-  const [[row]] = await pool.query(
-    `SELECT customer_id AS id,
-            f_name      AS firstName,
-            l_name      AS lastName,
-            contact_num AS contactNumber,
-            email
-       FROM customer
-      WHERE customer_id = ?`,
-    [id]
-  );
-  return row || null;
-}
-
 async function create({ firstName, lastName, contactNumber, email, passwordHash }) {
   const [result] = await pool.query(
     `INSERT INTO customer (f_name, l_name, contact_num, email, password)
@@ -46,22 +32,6 @@ async function create({ firstName, lastName, contactNumber, email, passwordHash 
     [firstName, lastName, contactNumber, email, passwordHash]
   );
   return result.insertId;
-}
-
-async function update(id, { firstName, lastName, contactNumber, email }) {
-  await pool.query(
-    `UPDATE customer
-        SET f_name = ?, l_name = ?, contact_num = ?, email = ?
-      WHERE customer_id = ?`,
-    [firstName, lastName, contactNumber, email, id]
-  );
-}
-
-async function updatePassword(id, passwordHash) {
-  await pool.query(
-    'UPDATE customer SET password = ? WHERE customer_id = ?',
-    [passwordHash, id]
-  );
 }
 
 async function verifySchema() {
@@ -78,4 +48,4 @@ async function verifySchema() {
   return problems;
 }
 
-module.exports = { findByEmail, findById, create, update, updatePassword, verifySchema };
+module.exports = { countAll, findByEmail, create, verifySchema };

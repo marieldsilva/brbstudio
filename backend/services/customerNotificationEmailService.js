@@ -78,7 +78,7 @@ function buildMessage({ to, firstName, subject, heading, intro, details }) {
   return { to, subject, text, html };
 }
 
-function buildBookingDecisionEmail({ booking, status, downpaymentCents }) {
+function buildBookingDecisionEmail({ booking, status, downpaymentCents, reason }) {
   const accepted = status === BOOKING_STATUS.TO_PAY;
   if (!accepted && status !== BOOKING_STATUS.REJECTED) {
     throw new Error('Booking decision email requires an accepted or rejected status.');
@@ -88,6 +88,7 @@ function buildBookingDecisionEmail({ booking, status, downpaymentCents }) {
   const schedule = getSchedule(booking);
   const firstName = getFirstName(booking);
   const downpayment = accepted ? peso(downpaymentCents) : null;
+  const scheduleConflict = !accepted && reason === 'schedule_conflict';
 
   return buildMessage({
     to: booking.customerEmail,
@@ -98,7 +99,9 @@ function buildBookingDecisionEmail({ booking, status, downpaymentCents }) {
     heading: accepted ? 'Your booking request has been accepted' : 'Your booking request was not approved',
     intro: accepted
       ? `Please pay the 50% downpayment of ${downpayment} through the GCash option or upload your payment proof in My Bookings. Your booking will be confirmed after the downpayment is verified.`
-      : 'Unfortunately, we are unable to approve your booking request. Please contact the studio if you have any questions.',
+      : scheduleConflict
+        ? 'Another booking was accepted for an overlapping time, so we could not approve this request. Please choose a different time or date and submit a new booking request.'
+        : 'Unfortunately, we are unable to approve your booking request. Please contact the studio if you have any questions.',
     details: [
       ['Booking reference', reference],
       ['Requested schedule', schedule],
@@ -178,12 +181,12 @@ async function sendBookingNotification(bookingId, purpose, build) {
   }
 }
 
-async function sendBookingDecisionEmail({ bookingId, status }) {
+async function sendBookingDecisionEmail({ bookingId, status, reason }) {
   return sendBookingNotification(bookingId, 'Booking decision', (booking) => {
     const downpaymentCents = status === BOOKING_STATUS.TO_PAY
       ? requiredDownpaymentCents(toCents(booking.totalAmount))
       : null;
-    return buildBookingDecisionEmail({ booking, status, downpaymentCents });
+    return buildBookingDecisionEmail({ booking, status, downpaymentCents, reason });
   });
 }
 

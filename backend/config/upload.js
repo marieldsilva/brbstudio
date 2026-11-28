@@ -1,9 +1,8 @@
 const path = require('path');
 const multer = require('multer');
 
-const PROJECT_ROOT = path.join(__dirname, '..', '..');
-
-const UPLOADS_ROOT = path.join(PROJECT_ROOT, 'uploads');
+const BACKEND_ROOT = path.join(__dirname, '..');
+const UPLOADS_ROOT = path.join(BACKEND_ROOT, 'uploads');
 const SERVICE_IMAGE_DIR = path.join(UPLOADS_ROOT, 'services');
 const SERVICE_IMAGE_URL = '/uploads/services';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;

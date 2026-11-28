@@ -12,7 +12,10 @@ const SERVICES_SUBQUERY = `(
 )`;
 
 const PENDING_PAYMENTS_SUBQUERY = `(
-  SELECT COUNT(*) FROM payment p WHERE p.booking_id = b.booking_id AND p.status = 'Pending'
+  SELECT COUNT(*) FROM payment p
+   WHERE p.booking_id = b.booking_id
+     AND p.status = 'Pending'
+     AND p.proof_path IS NOT NULL
 )`;
 
 const splitServices = (text) => (text ? text.split(SERVICE_SEPARATOR) : []);

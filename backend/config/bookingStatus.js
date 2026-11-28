@@ -4,6 +4,7 @@ const BOOKING_STATUS = Object.freeze({
   CONFIRMED: 'Confirmed',
   COMPLETED: 'Completed',
   REJECTED: 'Rejected',
+  CANCELLED: 'Cancelled',
 });
 
 const RESCHEDULE_STATUS = Object.freeze({

@@ -6,6 +6,7 @@ const REQUIRED_COLUMNS = [
   'service_name',
   'description',
   'price',
+  'duration_hours',
   'image_path',
   'availability',
 ];
@@ -14,6 +15,7 @@ const SERVICE_FIELDS = `service_id AS id,
                         service_name AS name,
                         description,
                         price,
+                        duration_hours AS durationHours,
                         image_path AS imagePath,
                         availability AS available`;
 
@@ -45,21 +47,21 @@ async function findActive() {
   return rows;
 }
 
-async function create({ name, description, price, imagePath, available }) {
+async function create({ name, description, price, durationHours, imagePath, available }) {
   const [result] = await pool.query(
-    `INSERT INTO service (service_name, description, price, image_path, availability)
-     VALUES (?, ?, ?, ?, ?)`,
-    [name, description, price, imagePath, available ? 1 : 0]
+    `INSERT INTO service (service_name, description, price, duration_hours, image_path, availability)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [name, description, price, durationHours, imagePath, available ? 1 : 0]
   );
   return result.insertId;
 }
 
-async function update(id, { name, description, price, imagePath, available }) {
+async function update(id, { name, description, price, durationHours, imagePath, available }) {
   await pool.query(
     `UPDATE service
-        SET service_name = ?, description = ?, price = ?, image_path = ?, availability = ?
+        SET service_name = ?, description = ?, price = ?, duration_hours = ?, image_path = ?, availability = ?
       WHERE service_id = ?`,
-    [name, description, price, imagePath, available ? 1 : 0, id]
+    [name, description, price, durationHours, imagePath, available ? 1 : 0, id]
   );
 }
 

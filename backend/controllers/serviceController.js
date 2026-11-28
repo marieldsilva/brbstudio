@@ -1,10 +1,8 @@
 const serviceService = require('../services/serviceManagementService');
 const sendError = require('./errorResponse');
-const serviceModel = require('../models/serviceModel');
 
 async function listAvailable(req, res, next) {
   try {
-    const services = await serviceModel.findAvailable();
     res.json(await serviceService.listAvailableServices());
   } catch (error) {
     next(error);

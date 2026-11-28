@@ -7,6 +7,7 @@ const REQUIRED_BOOKING_COLUMNS = [
   'event_date',
   'start_time',
   'end_time',
+  'voucher_consumed',
   'subtotal',
   'discount_amount',
   'total_amount',
@@ -128,13 +129,16 @@ async function findBookedServices(date, statuses) {
 }
 
 async function verifySchema() {
-  const [booking, bookingService] = await Promise.all([
+  const [booking, bookingService, bookingDateLock] = await Promise.all([
     findMissingColumnProblems('booking', REQUIRED_BOOKING_COLUMNS),
     findMissingColumnProblems('booking_service', REQUIRED_BOOKING_SERVICE_COLUMNS),
+    findMissingColumnProblems('booking_date_lock', ['event_date']),
   ]);
 
-  const problems = [...booking.problems, ...bookingService.problems];
-  if (problems.length > 0) problems.push('Run database/booking_tables.sql in phpMyAdmin to fix this.');
+  const problems = [...booking.problems, ...bookingService.problems, ...bookingDateLock.problems];
+  if (problems.length > 0) {
+    problems.push('Run database/update_voucher_payment_redemptions.sql for existing databases or database/booking_tables.sql for new installs.');
+  }
 
   return problems;
 }

@@ -7,7 +7,7 @@ const bookingManagementModel = require('../models/bookingManagementModel');
 const customerBookingModel = require('../models/customerBookingModel');
 const { generateSlots } = require('./timeslotService');
 const { getScheduleDetails } = require('./serviceScheduleRules');
-const { isValidIsoDate, timeTextToMinutes, todayIso } = require('./timeHelper');
+const { businessTimeMinutes, isValidIsoDate, timeTextToMinutes, todayIso } = require('./timeHelper');
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -23,8 +23,7 @@ function readServiceIds(value) {
 }
 
 function currentMinutes() {
-  const now = new Date();
-  return now.getHours() * 60 + now.getMinutes();
+  return businessTimeMinutes(new Date());
 }
 
 function endTimeFor(startTime, durationHours) {

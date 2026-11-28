@@ -25,17 +25,17 @@ async function findFrom(startDate) {
   return rows.map((row) => row.date);
 }
 
-async function exists(date) {
-  const [[row]] = await pool.query('SELECT COUNT(*) AS total FROM blocked_date WHERE blocked_on = ?', [date]);
+async function exists(date, executor = pool) {
+  const [[row]] = await executor.query('SELECT COUNT(*) AS total FROM blocked_date WHERE blocked_on = ?', [date]);
   return row.total > 0;
 }
 
-async function create(date) {
-  await pool.query('INSERT INTO blocked_date (blocked_on) VALUES (?)', [date]);
+async function create(date, executor = pool) {
+  await executor.query('INSERT INTO blocked_date (blocked_on) VALUES (?)', [date]);
 }
 
-async function remove(date) {
-  const [result] = await pool.query('DELETE FROM blocked_date WHERE blocked_on = ?', [date]);
+async function remove(date, executor = pool) {
+  const [result] = await executor.query('DELETE FROM blocked_date WHERE blocked_on = ?', [date]);
   return result.affectedRows > 0;
 }
 

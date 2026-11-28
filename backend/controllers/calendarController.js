@@ -1,5 +1,7 @@
 const calendarService = require('../services/calendarService');
+const { BOOKING_HOURS } = require('../config/bookingRules');
 const availabilityService = require('../services/availabilityService');
+const { pool } = require('../config/db');
 const sendError = require('./errorResponse');
 
 async function getMonthOverview(req, res, next) {
@@ -75,12 +77,33 @@ async function unblockDate(req, res, next) {
   }
 }
 
+async function blockTime(req, res, next) {
+  try {
+    res.status(201).json(await calendarService.blockTime(req.body?.date, req.body?.startTime));
+  } catch (error) {
+    sendError(error, res, next);
+  }
+}
+
+async function unblockTime(req, res, next) {
+  try {
+    await calendarService.unblockTime(req.params.id);
+    res.status(204).end();
+  } catch (error) {
+    sendError(error, res, next);
+  }
+}
+
 module.exports = {
   getMonthOverview,
   getBlockedDatesInMonth,
   getDayDetails,
   getPublicDayAvailability,
+  getBookingHours,
+  getAvailability,
   listBlockedDates,
   blockDate,
   unblockDate,
+  blockTime,
+  unblockTime,
 };

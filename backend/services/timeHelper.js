@@ -1,4 +1,5 @@
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const BUSINESS_TIME_ZONE = 'Asia/Manila';
 
 function formatMinutes(totalMinutes) {
   const hours24 = Math.floor(totalMinutes / 60);
@@ -17,7 +18,29 @@ function toIsoDate(date) {
 }
 
 function todayIso() {
-  return toIsoDate(new Date());
+  return businessDateIso(new Date());
+}
+
+function businessDateIso(date) {
+  const parts = new Intl.DateTimeFormat('en', {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function businessTimeMinutes(date) {
+  const parts = new Intl.DateTimeFormat('en', {
+    timeZone: BUSINESS_TIME_ZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, Number(value)]));
+  return values.hour * 60 + values.minute;
 }
 
 function isValidIsoDate(value) {
@@ -44,5 +67,7 @@ module.exports = {
   timeTextToMinutes,
   toIsoDate,
   todayIso,
+  businessDateIso,
+  businessTimeMinutes,
   isValidIsoDate,
 };
